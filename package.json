@@ -1,0 +1,46 @@
+{
+  "name": "reminders",
+  "productName": "Reminders",
+  "version": "0.1.0",
+  "description": "Quiet desktop reminders to move, drink water and sit well.",
+  "author": "zharnite",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zharnite/reminders.git"
+  },
+  "homepage": "https://github.com/zharnite/reminders",
+  "main": "src/main/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "fast": "electron . --fast",
+    "test": "node --test",
+    "assets": "node scripts/make-assets.js",
+    "dist": "electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "local.reminders.app",
+    "productName": "Reminders",
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false
+    }
+  },
+  "dependencies": {
+    "koffi": "^3.3.8"
+  },
+  "devDependencies": {
+    "electron": "^45.4.1",
+    "electron-builder": "^26.18.0"
+  }
+}

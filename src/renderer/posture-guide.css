@@ -1,0 +1,41 @@
+[data-panel="guide"] { max-width: 980px; }
+.layout { display: grid; grid-template-columns: minmax(300px, 1.1fr) 1fr; gap: 20px; align-items: start; margin-top: 16px; }
+@media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+.figure { margin: 0; padding: 12px; }
+.figure svg { width: 100%; height: auto; display: block; }
+
+.floor { stroke: var(--line); stroke-width: 2; }
+.furniture { fill: var(--line); }
+.furniture-line { stroke: var(--line); stroke-width: 8; stroke-linecap: round; fill: none; }
+.guide { stroke: var(--water); stroke-width: 1.5; stroke-dasharray: 5 5; }
+.person { stroke: var(--posture); stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.person circle { fill: var(--posture); stroke: none; }
+.eye { fill: #fff; }
+.markers circle { fill: var(--accent); }
+.markers text { fill: #fff; font: 700 13px "Segoe UI", system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; }
+
+.points { margin: 0; padding: 0; list-style: none; counter-reset: p; }
+.points li {
+  counter-increment: p; position: relative; padding: 8px 0 8px 36px; color: var(--muted);
+}
+.points li + li { border-top: 1px solid var(--line); }
+.points li::before {
+  content: counter(p); position: absolute; left: 0; top: 9px;
+  width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff;
+  display: grid; place-items: center; font-weight: 700; font-size: 12px;
+}
+.points b { color: var(--fg); }
+
+.reset-steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; }
+.reset-steps div { padding: 14px 16px; display: flex; gap: 10px; align-items: flex-start; }
+.reset-steps span {
+  flex: none; width: 22px; height: 22px; border-radius: 6px; background: var(--accent-soft); color: var(--accent);
+  display: grid; place-items: center; font-weight: 700; font-size: 12px;
+}
+.note { margin-top: 20px; }
+
+.desk-checklist { list-style: none; margin: 0; padding: 6px 16px; }
+.desk-checklist li { padding: 6px 0; }
+.desk-checklist label.check { align-items: flex-start; }
+.desk-checklist input { margin-top: 3px; }
+.desk-checklist label:has(input:checked) { color: var(--muted); text-decoration: line-through; }

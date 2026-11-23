@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'">
+  <title>Reminders</title>
+  <link rel="stylesheet" href="tones.css">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="posture-guide.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar" aria-label="Sections">
+    <div class="brand"><img src="../../assets/icon.png" alt=""> Reminders</div>
+    <button class="nav" data-tab="home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z"/></svg>Home
+    </button>
+    <button class="nav" data-tab="reminders">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg>Reminders
+    </button>
+    <button class="nav" data-tab="exercises">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14" cy="4" r="2"/><path d="M10 21l2-6 3 3v3M7 12l3-4 4 1 2 4 3 1M12 15l-2-4"/></svg>Exercises
+    </button>
+    <button class="nav" data-tab="smart">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>When to remind
+    </button>
+    <div class="nav-group guides">
+      <div class="nav-label">Guides</div>
+      <button class="nav" data-tab="styles">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><rect x="11" y="12" width="7" height="5" rx="1.5"/></svg>Notification styles
+      </button>
+      <button class="nav" data-tab="guide">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2"/><path d="M12 7.5v8M8 21l4-5.5 4 5.5M8 11h8"/></svg>Posture guide
+      </button>
+    </div>
+  </nav>
+
+  <main class="content">
+    <div class="fast-banner" id="fast-banner" hidden>
+      <b>Fast mode</b> — 1 minute = 1 second, so reminders come very often. Settings here are a separate test profile and don't affect the real app.
+    </div>
+
+    <!-- ===================================================== Home -->
+    <section data-panel="home" hidden>
+      <h1>Home</h1>
+      <p class="status" id="status"><span class="status-dot"></span><span id="status-text">…</span></p>
+
+      <div class="next-cards" id="next-cards"></div>
+
+      <h2>Pause</h2>
+      <div class="panel pause-panel">
+        <div class="pause-active" id="pause-active" hidden>
+          <span>Paused until <b id="pause-until-label"></b></span>
+          <button class="btn primary" id="resume" type="button">Resume now</button>
+        </div>
+        <div id="pause-controls">
+          <div class="quick-row">
+            <button class="btn" type="button" data-pause-min="30">30 min</button>
+            <button class="btn" type="button" data-pause-min="60">1 hour</button>
+            <button class="btn" type="button" data-pause-min="120">2 hours</button>
+            <button class="btn" type="button" data-pause-tomorrow>Until tomorrow</button>
+          </div>
+          <div class="custom-row">
+            <form id="pause-for-form" class="inline-form">
+              <span>Pause for</span>
+              <input type="number" id="pause-hours" min="0" max="168" placeholder="0" aria-label="Hours"> <span>h</span>
+              <input type="number" id="pause-mins" min="0" max="59" placeholder="0" aria-label="Minutes"> <span>min</span>
+              <button class="btn" type="submit">Pause</button>
+            </form>
+            <form id="pause-until-form" class="inline-form">
+              <span>or until</span>
+              <input type="time" id="pause-until-time" aria-label="Pause until time">
+              <button class="btn" type="submit">Pause</button>
+            </form>
+          </div>
+          <p class="form-error" id="pause-error" hidden></p>
+        </div>
+      </div>
+
+      <h2>Sound</h2>
+      <div class="panel">
+        <div class="row" data-row="mute">
+          <label class="switch"><input type="checkbox" id="mute-enabled"><span></span></label>
+          <div class="main">
+            <div class="name">Mute all sounds</div>
+            <div class="desc">Silences every chime (Move and your waiting cards). Popups still appear; to stop them too, use Pause above. Also in the tray menu.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== Reminders -->
+    <section data-panel="reminders" hidden>
+      <h1>Reminders</h1>
+      <p class="lead">Changes save automatically.</p>
+      <div class="panel">
+        <div class="row" data-row="move">
+          <label class="switch"><input type="checkbox" id="move-enabled"><span></span></label>
+          <div class="main">
+            <div class="name">Move</div>
+            <div class="desc">Get up for a short walk, squats, push-ups or a stretch. Stays on screen until you respond. <a href="#exercises" data-goto="exercises">Choose the exercises →</a></div>
+            <div class="params">
+              <span>Every <input type="number" id="move-interval" min="5" max="240" step="5"> min</span>
+              <label class="check"><input type="checkbox" id="move-chime"> Soft chime</label>
+            </div>
+          </div>
+        </div>
+        <div class="row" data-row="water">
+          <label class="switch"><input type="checkbox" id="water-enabled"><span></span></label>
+          <div class="main">
+            <div class="name">Water</div>
+            <div class="desc">A slim, silent one-line card in the corner. Click it to dismiss.</div>
+            <div class="params"><span>Every <input type="number" id="water-interval" min="5" max="240" step="5"> min</span></div>
+            <div class="params stack">
+              <label class="check"><input type="radio" name="water-fade" id="water-fade-auto" value="auto">
+                Fades after 8 seconds (hover to keep it)</label>
+              <label class="check"><input type="radio" name="water-fade" id="water-fade-stay" value="stay">
+                Stays until I click it</label>
+            </div>
+          </div>
+        </div>
+        <div class="row" data-row="posture">
+          <label class="switch"><input type="checkbox" id="posture-enabled"><span></span></label>
+          <div class="main">
+            <div class="name">Posture</div>
+            <div class="desc">A small silent card with three quick cues, like "Hips back · Shoulders down · Chin tucked".</div>
+            <div class="params"><span>Every <input type="number" id="posture-interval" min="5" max="240" step="5"> min</span></div>
+            <div class="params stack">
+              <label class="check"><input type="radio" name="posture-fade" id="posture-fade-auto" value="auto">
+                Fades after <input type="number" id="posture-fade-sec" min="5" max="120" step="5"> seconds (hover to keep it)</label>
+              <label class="check"><input type="radio" name="posture-fade" id="posture-fade-stay" value="stay">
+                Stays until I dismiss it</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-custom>
+        <h2>Your reminders</h2>
+        <p class="lead">Add a nudge for anything else, like resting your eyes, taking medicine or stepping outside. Each one can use any of the <a href="#styles" data-goto="styles">notification styles</a>.</p>
+        <div class="panel">
+          <ul class="ex-list custom-list" id="custom-list"></ul>
+        </div>
+        <div class="ex-add-wrap" id="custom-add-wrap"></div>
+      </div>
+
+      <h2>General</h2>
+      <div class="panel">
+        <div class="row" data-row="appearance">
+          <div class="main">
+            <div class="name">Appearance</div>
+            <div class="desc">For this window and the reminders. System follows your Windows setting.</div>
+            <div class="segmented" role="radiogroup" aria-label="Appearance">
+              <label><input type="radio" name="appearance" value="system"><span>System</span></label>
+              <label><input type="radio" name="appearance" value="light"><span>Light</span></label>
+              <label><input type="radio" name="appearance" value="dark"><span>Dark</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="row" data-row="login">
+          <label class="switch"><input type="checkbox" id="login-enabled"><span></span></label>
+          <div class="main">
+            <div class="name">Start when Windows starts</div>
+            <div class="desc" id="login-note">Launch Reminders in the tray when you sign in.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== Notification styles -->
+    <section data-panel="styles" hidden>
+      <h1>Notification styles</h1>
+      <p class="lead">Every reminder uses one of three styles, from barely there to hard to miss. They appear in the bottom-right corner above the taskbar and never take keyboard focus, so you can keep typing while one is on screen.</p>
+
+      <div class="style-list">
+        <article class="panel style-card" data-style="pill">
+          <div class="mock" aria-hidden="true">
+            <div class="m-pill tone-water"><span class="m-icon" data-icon="water"></span>Sip of water</div>
+          </div>
+          <div class="style-info">
+            <h3>Slim card</h3>
+            <dl>
+              <dt>Looks</dt><dd>One line with an icon and a few words.</dd>
+              <dt>Sound</dt><dd>None.</dd>
+              <dt>Goes away</dt><dd>Click it any time. Otherwise it fades after 8 seconds (hover to keep it), or it can be set to stay until you click it.</dd>
+              <dt>Best for</dt><dd>Frequent, low-stakes habits, like a sip of water.</dd>
+            </dl>
+            <div class="style-previews" data-previews></div>
+          </div>
+        </article>
+
+        <article class="panel style-card" data-style="card">
+          <div class="mock" aria-hidden="true">
+            <div class="m-card tone-posture">
+              <div class="m-head"><span class="m-badge" data-icon="posture"></span>Posture check</div>
+              <div class="m-title">Sit tall</div>
+              <div class="m-cues">Hips back · Shoulders down · Chin tucked</div>
+              <div class="m-btns"><span class="m-btn">Fixed it</span></div>
+              <div class="m-bar"></div>
+            </div>
+          </div>
+          <div class="style-info">
+            <h3>Fading card</h3>
+            <dl>
+              <dt>Looks</dt><dd>A small card with a title, a short message and one button. The posture card shows three quick cues and a link to the posture guide.</dd>
+              <dt>Sound</dt><dd>None.</dd>
+              <dt>Goes away</dt><dd>Fades after a set time (15 seconds by default; hover to keep it), or when you click the button. A thin bar along the bottom shows the time left. The posture card can be set to stay until dismissed.</dd>
+              <dt>Best for</dt><dd>Quick checks you should read but don't have to get up for.</dd>
+            </dl>
+            <div class="style-previews" data-previews></div>
+          </div>
+        </article>
+
+        <article class="panel style-card" data-style="sticky">
+          <div class="mock" aria-hidden="true">
+            <div class="m-card tone-move">
+              <div class="m-head"><span class="m-badge" data-icon="move"></span>Time to move<span class="m-chime">♪</span></div>
+              <div class="m-title">10 squats</div>
+              <div class="m-btns"><span class="m-btn">Done</span><span class="m-btn ghost">Snooze 10m</span><span class="m-btn ghost">Skip</span></div>
+            </div>
+          </div>
+          <div class="style-info">
+            <h3>Waiting card</h3>
+            <dl>
+              <dt>Looks</dt><dd>A larger card with Done, Snooze 10m and Skip. The move card suggests an exercise, with ↻ Swap and a countdown timer for timed ones; your own reminders can rotate through a list the same way.</dd>
+              <dt>Sound</dt><dd>A soft chime (can be turned off).</dd>
+              <dt>Goes away</dt><dd>Only when you respond. Snooze brings it back in 10 minutes.</dd>
+              <dt>Best for</dt><dd>Things you should actually stop and do.</dd>
+            </dl>
+            <div class="style-previews" data-previews></div>
+          </div>
+        </article>
+      </div>
+      <p class="note" id="styles-busy" hidden>A reminder is on screen right now. Previews are available once it's gone.</p>
+
+      <h2>How reminders behave</h2>
+      <div class="panel">
+        <div class="row"><div class="main"><div class="name">Every reminder is its own card</div><div class="desc">Answering a card affects only that reminder: Done on Move doesn't clear Water. All cards are the same width; their height fits what's on them.</div></div></div>
+        <div class="row"><div class="main"><div class="name">They stack, one on top</div><div class="desc">If more come due while a card is showing, they wait behind it, peeking out above ("Next: Posture", "+1" if there are more). Answer the front card and the next one comes forward. Each reminder is in the stack at most once; if several come due together, bigger cards go first.</div></div></div>
+        <div class="row"><div class="main"><div class="name">Timers count only while you're working</div><div class="desc">With the <a href="#smart" data-goto="smart">When to remind</a> settings on, timers pause while you're away and outside active hours, and reminders wait until fullscreen apps, calls or presentations end. Slim cards that waited more than 10 minutes are skipped.</div></div></div>
+        <div class="row"><div class="main"><div class="name">Previews don't count</div><div class="desc">Preview shows a reminder exactly as it will look, without restarting its timer.</div></div></div>
+      </div>
+      <p class="note">Make your own in <a href="#reminders" data-goto="reminders">Reminders → Your reminders</a> and give it any of these styles.</p>
+    </section>
+
+    <!-- ===================================================== Exercises -->
+    <section data-panel="exercises" hidden>
+      <h1>Exercises</h1>
+      <p class="lead">The move reminder suggests one of the switched-on exercises each time. Edit any of them, give any of them a timer, or add your own.</p>
+      <div class="panel">
+        <ul class="ex-list" id="ex-list"></ul>
+      </div>
+      <div class="ex-add-wrap" id="ex-add-wrap">
+        <button class="btn primary" type="button" id="ex-add">+ Add exercise</button>
+      </div>
+    </section>
+
+    <!-- ===================================================== When to remind -->
+    <section data-panel="smart" hidden>
+      <h1>When to remind</h1>
+      <p class="lead">Reminders only come when they make sense: during your working hours, while you're at the desk, and not in the middle of a presentation. Turn off any of these you don't want.</p>
+      <div class="panel">
+        <div class="row" data-row="away">
+          <label class="switch"><input type="checkbox" id="away-enabled"><span></span></label>
+          <div class="main">
+            <div class="name">Pause when away</div>
+            <div class="desc">Timers stop while you're idle or the screen is locked. When you come back, the move timer restarts since you just moved.</div>
+            <div class="params"><span>Away after <input type="number" id="away-idle" min="1" max="60"> min without mouse or keyboard</span></div>
+          </div>
+        </div>
+        <div class="row" data-row="hours">
+          <label class="switch"><input type="checkbox" id="hours-enabled"><span></span></label>
+          <div class="main">
+            <div class="name">Active hours</div>
+            <div class="desc">Only remind during these hours.</div>
+            <div class="params">
+              <span><input type="time" id="hours-start"> to <input type="time" id="hours-end"></span>
+              <span class="days" id="hours-days"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row" data-row="fullscreen">
+          <label class="switch"><input type="checkbox" id="fullscreen-enabled"><span></span></label>
+          <div class="main">
+            <div class="name">Quiet during fullscreen</div>
+            <div class="desc">Hold reminders during fullscreen apps, video calls and presentations; show them afterwards. Slim cards that waited more than 10 minutes are skipped.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== Posture guide -->
+    <section data-panel="guide" hidden>
+      <h1>How to sit well</h1>
+      <p class="lead">Set it up once, check it a few times a day, and get up often. Even the best position gets stiff if you hold it for hours, so the best posture is the next one.</p>
+
+      <div class="layout">
+        <figure class="panel figure">
+          <svg viewBox="0 0 520 440" role="img" aria-labelledby="fig-title">
+            <title id="fig-title">Side view of a person sitting well at a desk, with eight numbered reference points</title>
+            <line class="floor" x1="20" y1="410" x2="500" y2="410"/>
+            <rect class="furniture" x="240" y="222" width="240" height="10" rx="3"/>
+            <line class="furniture-line" x1="465" y1="232" x2="465" y2="410"/>
+            <rect class="furniture" x="402" y="80" width="12" height="96" rx="3"/>
+            <line class="furniture-line" x1="408" y1="176" x2="408" y2="222"/>
+            <line class="furniture-line" x1="390" y1="221" x2="426" y2="221"/>
+            <rect class="furniture" x="250" y="215" width="54" height="7" rx="2"/>
+            <path class="furniture-line" d="M118 120 Q108 190 124 252"/>
+            <rect class="furniture" x="118" y="254" width="140" height="12" rx="4"/>
+            <line class="furniture-line" x1="188" y1="266" x2="188" y2="392"/>
+            <line class="furniture-line" x1="150" y1="400" x2="226" y2="400"/>
+            <line class="guide" x1="182" y1="90" x2="402" y2="86"/>
+            <g class="person">
+              <circle cx="166" cy="88" r="24"/>
+              <path d="M162 116 L160 136 Q150 190 140 216 Q134 236 146 250"/>
+              <line x1="146" y1="250" x2="266" y2="250"/>
+              <line x1="266" y1="250" x2="266" y2="398"/>
+              <line x1="262" y1="402" x2="306" y2="402"/>
+              <line x1="160" y1="142" x2="172" y2="214"/>
+              <line x1="172" y1="214" x2="260" y2="214"/>
+            </g>
+            <circle class="eye" cx="180" cy="86" r="3"/>
+            <g class="markers">
+              <g transform="translate(212 52)"><circle r="12"/><text>1</text></g>
+              <g transform="translate(448 84)"><circle r="12"/><text>2</text></g>
+              <g transform="translate(196 132)"><circle r="12"/><text>3</text></g>
+              <g transform="translate(206 192)"><circle r="12"/><text>4</text></g>
+              <g transform="translate(88 206)"><circle r="12"/><text>5</text></g>
+              <g transform="translate(96 268)"><circle r="12"/><text>6</text></g>
+              <g transform="translate(298 268)"><circle r="12"/><text>7</text></g>
+              <g transform="translate(330 386)"><circle r="12"/><text>8</text></g>
+            </g>
+          </svg>
+        </figure>
+
+        <ol class="points">
+          <li><b>Ears over shoulders.</b> Chin slightly tucked. If your head drifts forward, it gets much heavier for your neck.</li>
+          <li><b>Screen top at eye level,</b> about an arm's length away, straight in front of you. On a laptop, raise it and use a separate keyboard.</li>
+          <li><b>Shoulders relaxed,</b> down and slightly back, not shrugged toward your ears.</li>
+          <li><b>Elbows about 90°,</b> close to your sides, wrists straight. Keyboard and mouse at elbow height.</li>
+          <li><b>Lower back supported.</b> Keep the gentle inward curve. Use the chair's lumbar support or a small cushion.</li>
+          <li><b>Hips all the way back</b> in the seat, with weight even on both sit bones.</li>
+          <li><b>Knees about 90°,</b> level with or a bit below your hips, with a fist-width gap between the seat edge and the back of your knee.</li>
+          <li><b>Feet flat on the floor</b> (or a footrest), legs uncrossed.</li>
+        </ol>
+      </div>
+
+      <h2>The 10-second reset</h2>
+      <div class="panel reset-steps">
+        <div><span>1</span>Scoot your hips all the way back</div>
+        <div><span>2</span>Roll shoulders up, back, and let them drop</div>
+        <div><span>3</span>Tuck your chin slightly, as if making a double chin</div>
+        <div><span>4</span>Breathe out and relax. No need to stiffen up</div>
+      </div>
+
+      <h2>Common drifts and their fixes</h2>
+      <div class="panel">
+        <div class="row"><div class="main"><div class="name">Twisted or turned to one side</div><div class="desc">Usually the screen or keyboard is off-center. Put the main monitor and keyboard directly in front of your belly button. If you use two screens, center the one you use most.</div></div></div>
+        <div class="row"><div class="main"><div class="name">Sliding forward and slumping</div><div class="desc">Your hips have crept to the front of the seat. Scoot back so your lower back touches the backrest. If your feet don't reach the floor, add a footrest instead of perching.</div></div></div>
+        <div class="row"><div class="main"><div class="name">Head poking toward the screen</div><div class="desc">Often the text is too small or the screen too far or too low. Raise the screen, bring it closer, or zoom in.</div></div></div>
+        <div class="row"><div class="main"><div class="name">Leaning on one elbow / crossed legs</div><div class="desc">Fine for a minute, but it twists the pelvis if you stay there. Uncross, plant both feet, and center your weight.</div></div></div>
+        <div class="row"><div class="main"><div class="name">Shrugged shoulders</div><div class="desc">The desk or armrests are too high. Lower them, or raise your chair and add a footrest.</div></div></div>
+      </div>
+
+      <h2>One-time desk setup</h2>
+      <div class="panel">
+        <ul class="desk-checklist">
+          <li><label class="check"><input type="checkbox"> Chair height: feet flat, knees about level with hips</label></li>
+          <li><label class="check"><input type="checkbox"> Armrests (if any) low enough that your shoulders relax</label></li>
+          <li><label class="check"><input type="checkbox"> Monitor centered, top edge at eye level, about an arm's length away</label></li>
+          <li><label class="check"><input type="checkbox"> Laptop on a stand or books, with an external keyboard and mouse</label></li>
+          <li><label class="check"><input type="checkbox"> Keyboard and mouse close, at elbow height</label></li>
+          <li><label class="check"><input type="checkbox"> Lumbar cushion or a rolled towel if your chair doesn't support your lower back</label></li>
+        </ul>
+      </div>
+      <p class="note">This is general ergonomics guidance, not medical advice. If you have pain that persists, talk to a physiotherapist or doctor.</p>
+    </section>
+  </main>
+</div>
+<div class="saved" id="saved" role="status">Saved ✓</div>
+
+<script src="icons.js"></script>
+<script src="app-core.js"></script>
+<script src="tab-home.js"></script>
+<script src="tab-settings.js"></script>
+<script src="tab-custom.js"></script>
+<script src="tab-styles.js"></script>
+<script src="tab-exercises.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+/* One colour per reminder icon, shared by the popups and the main window.
+   Use class "tone-<icon>" and read var(--tone) / var(--tone-soft). */
+.tone-move { --tone: #1f9d6c; --tone-soft: #e5f6ee; }
+.tone-water { --tone: #2f8fd8; --tone-soft: #e8f3fc; }
+.tone-posture { --tone: #7a5af5; --tone-soft: #f0ecff; }
+.tone-bell { --tone: #c7790f; --tone-soft: #fdf1df; }
+.tone-eye { --tone: #138f96; --tone-soft: #e0f4f5; }
+.tone-wind { --tone: #4f6bd8; --tone-soft: #e9edfc; }
+.tone-sun { --tone: #dd6a1a; --tone-soft: #fdeee2; }
+.tone-heart { --tone: #d64a7a; --tone-soft: #fce8ef; }
+.tone-star { --tone: #ad860a; --tone-soft: #fbf4dc; }
+.tone-capsule { --tone: #d1453b; --tone-soft: #fdeae8; }
+.tone-book { --tone: #8b5e3c; --tone-soft: #f5ece5; }
+
+@media (prefers-color-scheme: dark) {
+  .tone-move { --tone-soft: #1b3a2e; }
+  .tone-water { --tone-soft: #1d3346; }
+  .tone-posture { --tone-soft: #2e2850; }
+  .tone-bell { --tone: #e9a23b; --tone-soft: #3d2f1a; }
+  .tone-eye { --tone: #3cbfc6; --tone-soft: #173a3c; }
+  .tone-wind { --tone: #8197ec; --tone-soft: #252c4d; }
+  .tone-sun { --tone: #f08a43; --tone-soft: #40291a; }
+  .tone-heart { --tone: #ec6f99; --tone-soft: #432232; }
+  .tone-star { --tone: #dcb53a; --tone-soft: #3a321a; }
+  .tone-capsule { --tone: #f07a6e; --tone-soft: #43231f; }
+  .tone-book { --tone: #c08b62; --tone-soft: #3a2c22; }
+}

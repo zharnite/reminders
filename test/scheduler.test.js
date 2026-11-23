@@ -206,6 +206,33 @@ test('held during fullscreen: unique reminders line up, shown one by one after',
   assert.deepStrictEqual(s.waiting(), ['move']);
 });
 
+// ---------------------------------------------------------------- away: catch up when you're back
+
+test('catch up: while away, cards wait (never dropped); back, one of each, marked as waited', () => {
+  const s = make();
+  const awayCatchUp = { counting: true, canShow: false, catchUp: true };
+  // Away for 70 minutes, timers still counting: water (20, then still waiting), posture (25), move (60) come due.
+  const { t } = run(s, 0, 70, awayCatchUp, null);
+  assert.deepStrictEqual(s.queue.map((c) => c.id).sort(), ['move', 'posture', 'water']); // one of each, nothing dropped
+  // Back: they come forward one at a time, each marked as having waited for you.
+  const first = s.tick(t + TICK, ON);
+  assert.deepStrictEqual(first, { id: 'water', manual: false, waited: true });
+  s.resolve('done');
+  assert.strictEqual(s.remainingMs('water'), 20 * MIN); // answering water restarts only water
+  assert.ok(s.remainingMs('move') === 0 && s.remainingMs('posture') === 0);
+  const rest = [s.tick(t + 2 * TICK, ON)];
+  s.resolve('done');
+  rest.push(s.tick(t + 3 * TICK, ON));
+  assert.deepStrictEqual(rest.map((c) => [c.id, c.waited]), [['posture', true], ['move', true]]);
+});
+
+test('pause mode is unchanged: a held water card still goes stale', () => {
+  const s = make({ move: OFF, posture: OFF });
+  const held = { counting: true, canShow: false }; // e.g. fullscreen, no catch-up
+  run(s, 0, 31, held, null);
+  assert.strictEqual(s.front, null);
+});
+
 // ---------------------------------------------------------------- rules and settings
 
 test('active hours', () => {
@@ -256,6 +283,12 @@ test('settings merge keeps known keys and types only', () => {
   assert.strictEqual(merged.reminders.move.intervalMin, 60);
   assert.strictEqual(merged.extra, undefined);
   assert.deepStrictEqual(merged.smart.activeHours.days, [1, 2, 3, 4, 5]);
+});
+
+test('away mode defaults to pause', () => {
+  assert.strictEqual(DEFAULTS.smart.pauseWhenAway.mode, 'pause');
+  assert.strictEqual(mergeDefaults(DEFAULTS, { smart: { pauseWhenAway: { enabled: true, idleMin: 5 } } }).smart.pauseWhenAway.mode, 'pause'); // older settings files
+  assert.strictEqual(mergeDefaults(DEFAULTS, { smart: { pauseWhenAway: { mode: 'catchup' } } }).smart.pauseWhenAway.mode, 'catchup');
 });
 
 test('mute is off by default', () => {

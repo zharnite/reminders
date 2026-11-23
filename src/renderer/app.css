@@ -135,7 +135,10 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
 .status[data-kind="paused"] .status-dot,
 .status[data-kind="outside"] .status-dot,
-.status[data-kind="away"] .status-dot { background: #b6bdc8; }
+[data-row="away"] .params.stack label.check { align-items: flex-start; }
+[data-row="away"] .params.stack input[type="radio"] { margin-top: 3px; flex: none; }
+.status[data-kind="away"] .status-dot,
+.status[data-kind="catchup"] .status-dot { background: #b6bdc8; }
 .status[data-kind="fullscreen"] .status-dot { background: #e0a526; }
 .next-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
 .next-card { padding: 16px; display: flex; flex-direction: column; gap: 4px; }

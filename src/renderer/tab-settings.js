@@ -39,6 +39,8 @@
 
     $('away-enabled').checked = sm.pauseWhenAway.enabled;
     $('away-idle').value = sm.pauseWhenAway.idleMin;
+    const mode = sm.pauseWhenAway.mode === 'catchup' ? 'catchup' : 'pause';
+    document.querySelector(`input[name="away-mode"][value="${mode}"]`).checked = true;
     $('hours-enabled').checked = sm.activeHours.enabled;
     $('hours-start').value = sm.activeHours.start;
     $('hours-end').value = sm.activeHours.end;
@@ -94,6 +96,8 @@
 
     sm.pauseWhenAway.enabled = $('away-enabled').checked;
     sm.pauseWhenAway.idleMin = clampInt($('away-idle').value, 1, 120, sm.pauseWhenAway.idleMin);
+    const mode = document.querySelector('input[name="away-mode"]:checked');
+    sm.pauseWhenAway.mode = mode ? mode.value : 'pause';
     sm.activeHours.enabled = $('hours-enabled').checked;
     if ($('hours-start').value) sm.activeHours.start = $('hours-start').value;
     if ($('hours-end').value) sm.activeHours.end = $('hours-end').value;

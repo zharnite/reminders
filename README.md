@@ -42,7 +42,7 @@ On the Move card, **↻ Swap** picks a different exercise, and timed exercises h
 - **Home:** countdowns, **Remind me now**, **Pause** (30 min, 1 hour, 2 hours, until tomorrow, or your own length) and **Mute all sounds**.
 - **Reminders:** switch each reminder on or off, set how often, choose whether the water and posture cards fade, and manage **Your reminders**. **General** has **Appearance** (System, Light or Dark) and **Start when Windows starts**.
 - **Exercises:** choose which exercises Move suggests, edit them, give them timers, or add your own.
-- **When to remind:** pause while you're away from the computer, only remind during your working hours (09:00 to 18:00, Monday to Friday by default), and stay quiet during fullscreen apps, video calls and presentations. Each can be turned off.
+- **When to remind:** what happens while you're away from the computer (pause the timers, or keep counting and have everything that came due waiting for you when you're back), only remind during your working hours (09:00 to 18:00, Monday to Friday by default), and stay quiet during fullscreen apps, video calls and presentations. Each can be turned off.
 - **Guides:** **Notification styles** shows each style with a Preview button; **Posture guide** explains how to sit well, with a 10-second reset and a one-time desk setup checklist.
 
 ### Your own reminders

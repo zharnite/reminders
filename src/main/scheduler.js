@@ -74,12 +74,15 @@ class Scheduler {
   /**
    * Advance the clock.
    * @param {number} now
-   * @param {{counting:boolean, canShow:boolean}} cond
+   * @param {{counting:boolean, canShow:boolean, catchUp?:boolean}} cond
    *   counting: active time accrues (user present, within active hours, not paused)
    *   canShow:  a popup may be displayed right now (e.g. not fullscreen)
-   * @returns {null | {id:string, manual:boolean}} a card to bring on screen now
+   *   catchUp:  you're away in "catch up" mode: cards that come due wait for you, and are
+   *             never dropped for waiting too long
+   * @returns {null | {id:string, manual:boolean, waited?:true}} a card to bring on screen now
+   *   (waited: it came due while you were away, so it should stay until you answer it)
    */
-  tick(now, { counting, canShow }) {
+  tick(now, { counting, canShow, catchUp = false }) {
     const delta = Math.min(Math.max(0, now - this.lastTick), this.maxDeltaMs);
     this.lastTick = now;
 
@@ -87,10 +90,11 @@ class Scheduler {
       for (const s of this.state.values()) if (s.enabled) s.elapsedMs += delta;
     }
 
-    // Quiet reminders are not worth showing late: drop ones that waited too long.
+    // Quiet reminders are not worth showing late: drop ones that waited too long
+    // (unless they are waiting for you to come back).
     this.queue = this.queue.filter((c) => {
       const st = this.state.get(c.id);
-      if (c.shown || !st || !st.staleMs || now - c.createdAt <= st.staleMs) return true;
+      if (c.shown || c.waited || catchUp || !st || !st.staleMs || now - c.createdAt <= st.staleMs) return true;
       this._reset(c.id);
       return false;
     });
@@ -103,6 +107,7 @@ class Scheduler {
         .sort((a, b) => prio(b) - prio(a))
         .forEach((id) => this.queue.push({ id, manual: false, createdAt: now, shown: false }));
     }
+    if (catchUp) for (const c of this.queue) if (!c.shown) c.waited = true;
 
     // Cards you asked for ("Remind me now") come forward even outside active hours.
     const manualNext = !!this.front && this.front.manual;
@@ -162,7 +167,7 @@ class Scheduler {
     const f = this.front;
     if (!f || f.shown) return null;
     f.shown = true;
-    return { id: f.id, manual: f.manual };
+    return f.waited ? { id: f.id, manual: f.manual, waited: true } : { id: f.id, manual: f.manual };
   }
 
   _active(id) {

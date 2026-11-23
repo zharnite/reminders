@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, Tray, Menu, nativeImage, nativeTheme, ipcMain } = require('electron');
+const { app, BrowserWindow, Tray, Menu, nativeImage, nativeTheme, ipcMain, powerMonitor } = require('electron');
 const path = require('path');
 const { Settings } = require('./settings');
 const { Scheduler } = require('./scheduler');
@@ -87,6 +87,8 @@ app.whenReady().then(() => {
 
   tick();
   setInterval(tick, TICK_MS);
+  // Back from a locked screen or sleep: show what waited for you right away, not at the next tick.
+  for (const ev of ['unlock-screen', 'resume']) powerMonitor.on(ev, () => setTimeout(tick, 500));
 
   // --show=<id> (move, water, posture or a custom reminder's id): pop a reminder right away
   const show = process.argv.find((a) => a.startsWith('--show='));
@@ -115,18 +117,28 @@ function tick() {
   lastCond = cond;
 
   // Back after locking the screen or the PC sleeping: you got up, so restart the move
-  // timer (and drop a move card). Plain inactivity only pauses the timers.
-  const moveCleared = awayTracker.update(cond) && scheduler.returnedFromAway();
+  // timer (and drop a move card). Plain inactivity only pauses the timers. In "catch up"
+  // mode Move isn't restarted: its card is waiting for you like the others.
+  const catchUp = isCatchUp(s);
+  const leftDesk = awayTracker.update(cond);
+  const moveCleared = leftDesk && !catchUp && scheduler.returnedFromAway();
 
   const paused = now < pausedUntil;
-  const counting = !paused && cond.inHours && !cond.away;
-  const canShow = !cond.absent && !cond.fullscreen;
-  const card = scheduler.tick(now, { counting, canShow });
+  // Catch-up mode keeps counting while you're away, but holds the cards until you're back.
+  const counting = !paused && cond.inHours && (catchUp || !cond.away);
+  const canShow = !cond.absent && !cond.fullscreen && !(catchUp && cond.away);
+  const card = scheduler.tick(now, { counting, canShow, catchUp: catchUp && cond.away });
   if (card) showCard(card);
   else if (moveCleared || (popups.isOpen() && !popups.isPreview() && !onScreen())) popups.close();
   else syncWaiting();
 
   refreshStatus();
+}
+
+/** "When you're away: keep counting, catch up when I'm back". */
+function isCatchUp(s = settings.get()) {
+  const a = s.smart.pauseWhenAway;
+  return a.enabled && a.mode === 'catchup';
 }
 
 /** A real card is on screen (not just a preview). */
@@ -148,6 +160,8 @@ function showCard(card) {
   if (FAST) console.log(`[reminders] show ${card.id}`, scheduler.waiting().length ? `(waiting: ${scheduler.waiting()})` : '', JSON.stringify(lastCond));
   const payload = buildPayload(card.id, settings.get());
   if (payload) {
+    // A card that waited for you to come back stays until you answer it, instead of fading.
+    if (card.waited) payload.fadeSec = 0;
     popups.show(withMute({ ...payload, waiting: waitingInfo() }));
     shownWaitingKey = scheduler.waiting().join();
   } else {
@@ -236,7 +250,7 @@ function fmtUntil(ts) {
 function statusKind() {
   if (Date.now() < pausedUntil) return 'paused';
   if (!lastCond.inHours) return 'outside';
-  if (lastCond.away) return 'away';
+  if (lastCond.away) return isCatchUp() ? 'catchup' : 'away';
   if (lastCond.fullscreen) return 'fullscreen';
   return 'running';
 }
@@ -254,6 +268,7 @@ function baseStatus() {
       return next ? `Outside active hours · back ${fmtUntil(next.getTime())}` : 'Outside active hours';
     }
     case 'away': return 'Away — timers paused';
+    case 'catchup': return 'Away — reminders will wait for you';
     case 'fullscreen': return 'Fullscreen — reminders held';
     default: return FAST ? 'Running (fast mode: 1 min = 1 s)' : 'Running';
   }

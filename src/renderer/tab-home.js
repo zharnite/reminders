@@ -45,7 +45,7 @@
       card.querySelector('[data-when]').textContent = off ? 'Off' : fmtRemaining(due, s.minuteMs);
       card.querySelector('[data-every]').textContent = off
         ? 'Turned off in Reminders'
-        : `every ${r.intervalMin} min${s.kind === 'running' ? '' : ' · on hold'}`;
+        : `every ${r.intervalMin} min${s.kind === 'running' || s.kind === 'catchup' ? '' : ' · on hold'}`;
       const btn = card.querySelector('[data-remind]');
       const inStack = (s.queued || []).includes(r.id);
       btn.disabled = inStack;

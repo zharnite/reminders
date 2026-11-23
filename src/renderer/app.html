@@ -263,9 +263,15 @@
         <div class="row" data-row="away">
           <label class="switch"><input type="checkbox" id="away-enabled"><span></span></label>
           <div class="main">
-            <div class="name">Pause when away</div>
-            <div class="desc">Timers stop while you're idle or the screen is locked. If you locked the screen or your PC went to sleep, the move timer restarts when you're back, since you got up.</div>
+            <div class="name">When you're away</div>
+            <div class="desc">You're away after a few minutes without mouse or keyboard, or while the screen is locked or the PC is asleep. Turned off, reminders keep coming whether or not you're there.</div>
             <div class="params"><span>Away after <input type="number" id="away-idle" min="1" max="60"> min without mouse or keyboard</span></div>
+            <div class="params stack">
+              <label class="check"><input type="radio" name="away-mode" value="pause">
+                <span><b>Pause the timers.</b> Nothing counts while you're away. If you locked the screen or the PC slept, Move restarts when you're back, since you got up.</span></label>
+              <label class="check"><input type="radio" name="away-mode" value="catchup">
+                <span><b>Keep counting, catch up when I'm back.</b> Reminders that come due wait for you, at most one of each, and stay until you click them.</span></label>
+            </div>
           </div>
         </div>
         <div class="row" data-row="hours">

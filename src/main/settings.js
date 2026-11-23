@@ -16,7 +16,9 @@ const DEFAULTS = {
     custom: [],
   },
   smart: {
-    pauseWhenAway: { enabled: true, idleMin: 5 },
+    // mode 'pause': nothing counts while you're away. 'catchup': timers keep counting, and
+    // reminders that come due wait for you (at most one of each) until you're back.
+    pauseWhenAway: { enabled: true, idleMin: 5, mode: 'pause' },
     activeHours: { enabled: true, start: '09:00', end: '18:00', days: [1, 2, 3, 4, 5] },
     quietFullscreen: { enabled: true },
   },

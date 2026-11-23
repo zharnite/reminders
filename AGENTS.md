@@ -9,7 +9,7 @@ npm install        # deps go into node_modules (Electron 45, koffi, electron-bui
 npm test           # unit tests: node --test (test/scheduler.test.js), no Electron needed
 npm start          # run the app (tray icon near the clock)
 npm run fast       # 1 minute = 1 second, separate profile in %APPDATA%\Reminders-dev
-npm run dist       # unsigned NSIS installer -> dist\Reminders Setup <version>.exe
+npm run dist       # unsigned NSIS installer -> dist\Reminders-Setup-<version>.exe
 npm run assets     # regenerate assets/icon.png, tray.png, chime.wav (scripts/make-assets.js)
 ```
 

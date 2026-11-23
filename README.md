@@ -13,7 +13,7 @@ It runs entirely on your computer: no account, no internet connection, no tracki
 
 ## Install
 
-1. Download **`Reminders Setup <version>.exe`** from the [latest release](https://github.com/zharnite/reminders/releases/latest) (Windows 10 or 11, 64-bit), or build it yourself (see [Build from source](#build-from-source)).
+1. Download **`Reminders-Setup-<version>.exe`** from the [latest release](https://github.com/zharnite/reminders/releases/latest) (Windows 10 or 11, 64-bit), or build it yourself (see [Build from source](#build-from-source)).
 2. Run it. Windows may show **"Windows protected your PC"** because the installer isn't code-signed: click **More info → Run anyway**.
 3. Reminders installs for your user account only (no admin needed), starts right away, and appears as a green drop in the system tray near the clock. Click the **^** arrow there if you don't see it.
 

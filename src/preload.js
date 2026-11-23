@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('api', {
   openGuide: () => ipcRenderer.send('open:guide'),
   setActivityTimer: (reminderId, itemId, sec) => ipcRenderer.send('activity:set-timer', reminderId, itemId, sec),
   onCard: (cb) => ipcRenderer.on('popup:card', (_e, payload) => cb(payload)),
-  setInteractive: (on) => ipcRenderer.send('popup:interactive', !!on),
+  setHitArea: (rect) => ipcRenderer.send('popup:hit-area', rect),
 
   // Main window: settings
   getSettings: () => ipcRenderer.invoke('settings:get'),

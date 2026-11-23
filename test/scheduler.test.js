@@ -44,16 +44,23 @@ function run(s, fromMs, minutes, cond = ON, action = 'done') {
 
 // ---------------------------------------------------------------- timing
 
-test('water fires every 20 minutes, posture staggered to 35', () => {
+test('water fires every 20 minutes, posture staggered to 25, then every 30', () => {
   const s = make({ move: OFF });
-  const { events } = run(s, 0, 36);
-  assert.deepStrictEqual(events.map((e) => [e.at, e.id]), [[20, 'water'], [35, 'posture']]);
+  const { events } = run(s, 0, 56);
+  assert.deepStrictEqual(events.map((e) => [e.at, e.id]), [[20, 'water'], [25, 'posture'], [40, 'water'], [55, 'posture']]);
+});
+
+test('a countdown never shows more than the interval', () => {
+  const s = make();
+  for (const [id, min] of [['move', 60], ['water', 20], ['posture', 30]]) {
+    assert.ok(s.remainingMs(id) <= min * MIN, `${id}: ${s.remainingMs(id) / MIN} > ${min}`);
+  }
 });
 
 test('reminders due together each get their own card, bigger first, answered separately', () => {
   const s = make();
-  const { events, t } = run(s, 0, 60); // water 20, posture 35, water 40; at 60 move and water together
-  assert.deepStrictEqual(events.map((e) => [e.at, e.id]), [[20, 'water'], [35, 'posture'], [40, 'water'], [60, 'move']]);
+  const { events, t } = run(s, 0, 60); // water 20, posture 25, water 40, posture 55; at 60 move and water together
+  assert.deepStrictEqual(events.map((e) => [e.at, e.id]), [[20, 'water'], [25, 'posture'], [40, 'water'], [55, 'posture'], [60, 'move']]);
   // Answering Move only restarts Move: water is still due, as its own card.
   assert.strictEqual(s.remainingMs('move'), 60 * MIN);
   assert.strictEqual(s.remainingMs('water'), 0);
@@ -142,7 +149,7 @@ test('disabling a held reminder drops its card', () => {
 test('one card at a time: reminders due meanwhile wait in line', () => {
   const s = make();
   const { events } = run(s, 0, 59, ON, null); // never answer
-  // water at 20; posture comes due at 35 and waits behind it; water due again
+  // water at 20; posture comes due at 25 and waits behind it; water due again
   // at 40 is not queued twice, since it is already on screen.
   assert.deepStrictEqual(events.map((e) => [e.at, e.id]), [[20, 'water']]);
   assert.deepStrictEqual(s.waiting(), ['posture']);

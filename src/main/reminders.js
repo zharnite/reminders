@@ -16,8 +16,9 @@ const STYLES = {
 const BUILTIN = [
   { id: 'move', name: 'Move', style: 'sticky', icon: 'move', startMin: 0 },
   { id: 'water', name: 'Water', style: 'pill', icon: 'water', startMin: 0 },
-  // Stagger the first posture reminder by 5 minutes so it does not land on a water reminder.
-  { id: 'posture', name: 'Posture', style: 'card', icon: 'posture', startMin: -5 },
+  // Start posture 5 minutes ahead, so its first reminder (at 25 min) doesn't land on a
+  // water reminder (every 20 min), and its countdown never shows more than its interval.
+  { id: 'posture', name: 'Posture', style: 'card', icon: 'posture', startMin: 5 },
 ];
 const BUILTIN_IDS = new Set(BUILTIN.map((b) => b.id));
 

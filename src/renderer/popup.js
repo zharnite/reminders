@@ -371,9 +371,23 @@ function renderStack() {
   stack.classList.add('shown');
 }
 
-// The window is click-through except over the cards (see popups.js).
-stack.addEventListener('mouseenter', () => window.api.setInteractive(true));
-stack.addEventListener('mouseleave', () => window.api.setInteractive(false));
+/**
+ * The window is click-through except over the cards (see popups.js): tell the main
+ * process where the cards are, i.e. the card on screen plus the edges peeking out above.
+ */
+let lastHit = '';
+function reportHitArea() {
+  const card = root.querySelector('.card');
+  if (!card) return;
+  const r = stack.getBoundingClientRect();
+  const peek = waiting.length > 1 ? 30 : waiting.length ? 22 : 0;
+  const rect = { x: Math.floor(r.left), y: Math.floor(r.top - peek), width: Math.ceil(r.width), height: Math.ceil(r.height + peek) };
+  const key = `${rect.x},${rect.y},${rect.width},${rect.height}`;
+  if (key === lastHit) return;
+  lastHit = key;
+  window.api.setHitArea(rect);
+}
+new ResizeObserver(reportHitArea).observe(root);
 
 /**
  * Cards fit their content, so a card's height can change: the next card coming
@@ -394,13 +408,15 @@ function easeHeight(card, fromHeight, { fade = false } = {}) {
   card.style.transition = 'height 240ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 300ms ease, transform 300ms ease';
   card.style.height = `${toHeight}px`;
   let done = false;
+  const onEnd = (e) => e.propertyName === 'height' && end();
   const end = () => {
     if (done) return;
     done = true;
+    card.removeEventListener('transitionend', onEnd);
     card.style.height = '';
     card.style.transition = '';
   };
-  card.addEventListener('transitionend', (e) => e.propertyName === 'height' && end());
+  card.addEventListener('transitionend', onEnd);
   setTimeout(end, 400); // in case transitionend never fires
 }
 
@@ -425,6 +441,7 @@ function refresh(draw) {
 window.api.onWaiting((w) => {
   waiting = Array.isArray(w) ? w : [];
   renderStack();
+  reportHitArea();
 });
 
 /** Draw the card for a payload: the first one slides in, later ones come forward from behind. */
@@ -452,6 +469,7 @@ function show(p) {
   card.classList.add(firstCard ? 'enter' : 'forward');
   firstCard = false;
   easeHeight(card, fromHeight);
+  reportHitArea();
 }
 
 window.api.onCard(show);

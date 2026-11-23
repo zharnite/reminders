@@ -47,6 +47,7 @@ function mergeDefaults(defaults, value) {
 class Settings {
   constructor(dir) {
     this.file = path.join(dir, 'settings.json');
+    this.firstRun = !fs.existsSync(this.file); // no settings yet: a fresh install
     this.data = this._load();
   }
 

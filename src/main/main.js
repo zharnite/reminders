@@ -94,6 +94,11 @@ app.whenReady().then(() => {
   // --open=<tab> : open the main window on a tab (home, reminders, exercises, smart, styles, guide)
   const open = process.argv.find((a) => a.startsWith('--open='));
   if (open) openMain(open.split('=')[1]);
+  else if (settings.firstRun) {
+    // A fresh install would otherwise start silently in the tray: show where things are, once.
+    settings.set(settings.get());
+    openMain('home');
+  }
 });
 
 app.on('second-instance', () => openMain('home'));
@@ -446,8 +451,8 @@ function registerIpc() {
     tick(); // the next card in the stack (if any) comes forward; otherwise the popup closes
   });
 
-  ipcMain.on('popup:interactive', (e, on) => {
-    if (popups.ownsSender(e.sender)) popups.setInteractive(!!on);
+  ipcMain.on('popup:hit-area', (e, rect) => {
+    if (popups.ownsSender(e.sender)) popups.setHitArea(rect);
   });
 
   ipcMain.on('open:guide', () => openMain('guide'));

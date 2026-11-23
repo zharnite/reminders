@@ -6,7 +6,7 @@ const { Settings } = require('./settings');
 const { Scheduler } = require('./scheduler');
 const { Conditions } = require('./conditions');
 const { Popups } = require('./popups');
-const { nextActiveStart } = require('./rules');
+const { nextActiveStart, AwayTracker } = require('./rules');
 const { reminderList, reminderDefs, normalizeCustom, draftCustom, STYLES, ICONS, LIMITS } = require('./reminders');
 const {
   buildPayload,
@@ -46,7 +46,7 @@ if (!app.requestSingleInstanceLock()) {
 
 let settings, scheduler, conditions, popups, tray;
 let pausedUntil = 0;
-let wasAway = false;
+const awayTracker = new AwayTracker();
 let lastCond = { away: false, absent: false, inHours: true, fullscreen: false };
 let mainWin = null;
 let shownWaitingKey = ''; // the line behind the popup on screen, as last drawn
@@ -114,9 +114,9 @@ function tick() {
   const cond = conditions.evaluate(s.smart, new Date(now));
   lastCond = cond;
 
-  // Back at the desk: you just moved, so restart the move timer (and drop a move card).
-  const moveCleared = wasAway && !cond.away && scheduler.returnedFromAway();
-  wasAway = cond.away;
+  // Back after locking the screen or the PC sleeping: you got up, so restart the move
+  // timer (and drop a move card). Plain inactivity only pauses the timers.
+  const moveCleared = awayTracker.update(cond) && scheduler.returnedFromAway();
 
   const paused = now < pausedUntil;
   const counting = !paused && cond.inHours && !cond.away;

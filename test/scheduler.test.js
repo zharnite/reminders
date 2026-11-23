@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const { Scheduler } = require('../src/main/scheduler');
-const { isWithinActiveHours, isFullscreenState, nextActiveStart } = require('../src/main/rules');
+const { isWithinActiveHours, isFullscreenState, nextActiveStart, AwayTracker } = require('../src/main/rules');
 const { mergeDefaults, DEFAULTS } = require('../src/main/settings');
 const { reminderDefs, reminderList, normalizeCustom, cleanItems, LIMITS, TIMER_MIN_SEC } = require('../src/main/reminders');
 const content = require('../src/main/content');
@@ -227,6 +227,19 @@ test('nextActiveStart: when active hours begin again', () => {
   assert.strictEqual(fmt(nextActiveStart(new Date(2026, 10, 27, 19, 0), c)), '1 9:00'); // Friday evening -> Monday
   assert.strictEqual(nextActiveStart(new Date(), { start: 'x', end: '18:00', days: [1] }), null);
   assert.strictEqual(nextActiveStart(new Date(), { start: '09:00', end: '18:00', days: [] }), null);
+});
+
+test('away: only a locked screen or sleep counts as getting up', () => {
+  const t = new AwayTracker();
+  const here = { away: false, absent: false };
+  const idle = { away: true, absent: false }; // no mouse or keyboard for a while
+  const locked = { away: true, absent: true };
+  // Idle at the desk (reading, a call): timers pause, Move is not restarted.
+  assert.deepStrictEqual([t.update(here), t.update(idle), t.update(idle), t.update(here)], [false, false, false, false]);
+  // Idle, then locked, then back: you left the desk.
+  assert.deepStrictEqual([t.update(idle), t.update(locked), t.update(idle), t.update(here)], [false, false, false, true]);
+  // It doesn't carry over to the next stretch.
+  assert.deepStrictEqual([t.update(idle), t.update(here)], [false, false]);
 });
 
 test('fullscreen states', () => {

@@ -46,6 +46,33 @@ function nextActiveStart(date, cfg) {
   return null;
 }
 
+/**
+ * Follows one stretch away from the computer, to decide whether you got up. Only a
+ * locked screen or a sleeping PC counts as leaving the desk: a few minutes without
+ * mouse or keyboard is just as likely reading, a call or thinking, so it only pauses
+ * the timers and doesn't restart Move.
+ */
+class AwayTracker {
+  constructor() {
+    this.away = false;
+    this.leftDesk = false;
+  }
+
+  /**
+   * @param {{away:boolean, absent:boolean}} cond  absent = screen locked or PC asleep
+   * @returns {boolean} true once, when you come back from a stretch that included leaving the desk
+   */
+  update({ away, absent }) {
+    if (away && absent) this.leftDesk = true;
+    const cameBack = this.away && !away;
+    this.away = away;
+    if (!cameBack) return false;
+    const moved = this.leftDesk;
+    this.leftDesk = false;
+    return moved;
+  }
+}
+
 // SHQueryUserNotificationState results
 // 1 NOT_PRESENT, 2 BUSY (fullscreen app), 3 RUNNING_D3D_FULL_SCREEN,
 // 4 PRESENTATION_MODE, 5 ACCEPTS_NOTIFICATIONS, 6 QUIET_TIME, 7 APP
@@ -53,4 +80,4 @@ function isFullscreenState(code) {
   return code === 2 || code === 3 || code === 4;
 }
 
-module.exports = { parseHHMM, isWithinActiveHours, nextActiveStart, isFullscreenState };
+module.exports = { parseHHMM, isWithinActiveHours, nextActiveStart, isFullscreenState, AwayTracker };

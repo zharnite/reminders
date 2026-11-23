@@ -148,6 +148,7 @@ class Scheduler {
   /**
    * The user came back after being away (idle, locked, asleep). They just moved,
    * so the move timer restarts. A move card on screen or in line is no longer needed.
+   * main.js calls this only after the screen was locked or the PC slept (rules.AwayTracker).
    * @returns {boolean} true if the card on screen was Move and has been removed
    */
   returnedFromAway() {

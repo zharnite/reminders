@@ -1,7 +1,7 @@
 {
   "name": "reminders",
   "productName": "Reminders",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Quiet desktop reminders to move, drink water and sit well.",
   "author": "zharnite",
   "license": "MIT",
